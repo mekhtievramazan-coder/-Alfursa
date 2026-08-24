@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<title>Alfursa — Партнерский календарь сезонности</title>
+<style>
+  :root{
+    --navy:#0D3D5C;
+    --navy-d:#082638;
+    --green:#1D9E75;
+    --green-l:#E1F5EE;
+    --bg:#F6F5F1;
+    --card:#FFFFFF;
+    --ink:#1E2A32;
+    --muted:#6B7680;
+    --line:#E4E1D8;
+    --warn-bg:#FBEFDD;
+    --warn-ink:#7A4E12;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    padding:32px 20px 60px;
+  }
+  .wrap{max-width:1180px;margin:0 auto;}
+  header{margin-bottom:22px;}
+  .eyebrow{
+    font-size:12px;letter-spacing:.06em;text-transform:uppercase;
+    color:var(--green);font-weight:600;margin-bottom:6px;
+  }
+  h1{font-size:26px;margin:0 0 8px;color:var(--navy);font-weight:600;}
+  .sub{color:var(--muted);font-size:14px;max-width:680px;line-height:1.5;}
+  .disclaimer{
+    margin-top:14px;
+    background:var(--warn-bg);
+    color:var(--warn-ink);
+    border:1px solid #EBD7AE;
+    border-radius:8px;
+    padding:12px 16px;
+    font-size:13px;
+    line-height:1.5;
+    max-width:820px;
+  }
+  .layout{
+    display:grid;
+    grid-template-columns:420px 1fr;
+    gap:28px;
+    margin-top:28px;
+    align-items:start;
+  }
+  @media(max-width:880px){
+    .layout{grid-template-columns:1fr;}
+  }
+  .wheel-box{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:24px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  svg{width:100%;height:auto;max-width:380px;}
+  .seg{cursor:pointer;transition:opacity .15s;}
+  .seg:hover{opacity:.85;}
+  .seg.active{stroke:var(--navy);stroke-width:2;}
+  .month-label{font-size:12.5px;font-weight:600;fill:var(--ink);}
+  .center-label{font-size:13px;fill:var(--navy);font-weight:600;}
+  .center-sub{font-size:10.5px;fill:var(--muted);}
+  .legend{
+    display:flex;flex-wrap:wrap;gap:8px 14px;
+    margin-top:18px;justify-content:center;
+  }
+  .legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+  .dot{width:10px;height:10px;border-radius:50%;flex:none;}
+  .detail{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:16px;
+    padding:28px 30px;
+    min-height:420px;
+  }
+  .detail-head{
+    display:flex;justify-content:space-between;align-items:flex-start;
+    border-bottom:1px solid var(--line);
+    padding-bottom:16px;margin-bottom:18px;
+  }
+  .detail-month{font-size:22px;font-weight:600;color:var(--navy);}
+  .detail-tag{
+    font-size:11.5px;font-weight:600;letter-spacing:.03em;
+    color:#fff;background:var(--green);
+    padding:4px 10px;border-radius:20px;text-transform:uppercase;
+  }
+  .season-note{
+    font-size:13.5px;color:var(--muted);line-height:1.6;margin-bottom:20px;
+  }
+  .cat-block{margin-bottom:20px;}
+  .cat-title{
+    font-size:13px;font-weight:600;color:var(--navy);
+    text-transform:uppercase;letter-spacing:.03em;margin-bottom:10px;
+    display:flex;align-items:center;gap:8px;
+  }
+  .cat-count{
+    font-size:11px;font-weight:400;color:var(--muted);
+    text-transform:none;letter-spacing:0;
+  }
+  .baseline-details summary{
+    cursor:pointer;list-style:none;
+  }
+  .baseline-details summary::-webkit-details-marker{display:none;}
+  .baseline-details summary::before{
+    content:"▸ ";
+  }
+  .baseline-details[open] summary::before{
+    content:"▾ ";
+  }
+  .partner-grid{
+    display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:10px;
+  }
+  .partner-card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:10px 12px;
+    background:var(--bg);
+  }
+  .partner-card.focus{
+    border-color:var(--green);
+    background:var(--green-l);
+  }
+  .partner-card.baseline{
+    background:transparent;
+    opacity:.75;
+  }
+  .partner-name{font-size:13.5px;font-weight:600;color:var(--ink);}
+  .partner-offer{font-size:12px;color:var(--muted);margin-top:2px;}
+  .group-label{
+    font-size:11.5px;color:var(--green);font-weight:600;
+    text-transform:uppercase;letter-spacing:.02em;
+    margin:0 0 8px;
+  }
+  .group-label.baseline-label{
+    color:var(--muted);margin-top:14px;
+  }
+  .action-box{
+    margin-top:8px;
+    background:var(--green-l);
+    border-radius:10px;
+    padding:14px 16px;
+    font-size:13px;
+    color:#0F5A44;
+    line-height:1.55;
+  }
+  .action-box b{color:#08402F;}
+  .status-line{
+    font-size:11.5px;color:var(--muted);margin-top:16px;
+    border-top:1px dashed var(--line);padding-top:12px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Alfursa · Partner marketing</div>
+    <h1>Партнерский календарь сезонности</h1>
+    <div class="sub">Круговая диаграмма для планирования активаций со всеми 138 партнерами по месяцам. Кликните на сегмент месяца — увидите все 12 категорий партнеров, с делением на «усиленный фокус» и «базовую поддержку».</div>
+    <div class="disclaimer">
+      <b>Статус данных: партнеры и акции — факт (из выгрузки на 138 партнеров). Привязка категорий к месяцам — гипотеза, требует проверки.</b> Сезонность построена на общей рыночной логике и исламском календаре на 2026 год, а не на фактической динамике заявок и сделок Alfursa. Перед запуском активаций нужно сверить с реальными данными CRM/AppMetrica за 2024–2026.
+    </div>
+  </header>
+
+  <div class="layout">
+    <div class="wheel-box">
+      <svg viewBox="0 0 380 380" id="wheel"></svg>
+      <div class="legend" id="legend"></div>
+    </div>
+
+    <div class="detail" id="detail"></div>
+  </div>
+</div>
+
+<script>
+const categoryColors = {
+  "Мужская одежда и обувь": "#1D9E75",
+  "Женская одежда и аксессуары": "#D4537E",
+  "Детская одежда и товары": "#7F77DD",
+  "Мебель и интерьер": "#8D6E63",
+  "Спорт и активный отдых": "#4FA33B",
+  "Для дома / инженерные системы": "#378ADD",
+  "Авто": "#E2574A",
+  "Часы и аксессуары": "#C9A227",
+  "Электроника": "#0D3D5C",
+  "Здоровье и красота": "#8E44AD",
+  "Образование": "#E08E0B",
+  "Путешествия / хадж-умра": "#17A2B8"
+};
+
+const allCats = Object.keys(categoryColors);
+
+// Полный список 138 партнеров из актуальной выгрузки, по категориям.
+const catFull = {
+  "Мужская одежда и обувь": [
+    {n:"BOSTON", o:"25-0-3"},
+    {n:"SALIMSHOPMEN", o:"25-0-3"},
+    {n:"DEGNO", o:"25-0-3"},
+    {n:"HANZORI", o:"30-0-5, 20-0-3"},
+    {n:"AMMANISHOP", o:"наценка"},
+    {n:"BONI", o:"30-0-5, 20-0-3"},
+    {n:"ALBERTO", o:"30-0-5, 25-0-3"},
+    {n:"BADU", o:"30-0-5, 20-0-3"},
+    {n:"SULMAR", o:"25-0-3"},
+    {n:"SAIDBEGOV", o:"25-0-3"},
+    {n:"KRAL", o:"30-0-5, 20-0-3"},
+    {n:"HITMAN", o:"25-0-3"},
+    {n:"YSP", o:"30-0-5, 25-0-3"},
+    {n:"AYBOND", o:"30-0-5, 20-0-3"},
+    {n:"RaySon (одежда)", o:"30-0-5, 20-0-3"},
+    {n:"VESTITI", o:"25-0-3"},
+    {n:"JORDANS.mhk", o:"30-0-5, 25-0-3"},
+    {n:"NEW BALANCE", o:"20-0-3, 30-0-5"},
+    {n:"FAMILY", o:"30-0-5, 20-0-3"},
+    {n:"МАРЛИ", o:"30-0-5, 25-0-3"},
+    {n:"FAJR WEAR", o:"25-0-3"}
+  ],
+  "Женская одежда и аксессуары": [
+    {n:"BEYOND", o:"30-0-5, 20-0-3"},
+    {n:"MAR.FA", o:"30-0-5, 20-0-3"},
+    {n:"AL.MDINA", o:"30-0-5, 20-0-3"},
+    {n:"YUSUPOVA", o:"30-0-5, 20-0-3"},
+    {n:"MAAKU", o:"30-0-5, 20-0-3"},
+    {n:"CAMILLE", o:"30-0-5, 20-0-3 (обувь)"},
+    {n:"BABI SHOES", o:"30-0-5, 20-0-3"},
+    {n:"BULVAR", o:"30-0-5, 25-0-3 (обувь и сумки)"},
+    {n:"HUZAIMA", o:"30-0-5, 20-0-3"},
+    {n:"IZUMRUD SHOWROOM", o:"наценка (одежда для мусульманок)"},
+    {n:"MARRIVV", o:"25-0-3"},
+    {n:"UMM ASAD", o:"30-0-5, 20-0-3"}
+  ],
+  "Детская одежда и товары": [
+    {n:"МОДА ДЕТИ", o:"30-0-5, 20-0-3"},
+    {n:"КАРАПУЗ", o:"наценка"},
+    {n:"BABY MARKET", o:"30-0-5, 20-0-3"},
+    {n:"СТИЛЯГИ", o:"30-0-5, 20-0-3"},
+    {n:"БЕЛАЯ СКРИПКА", o:"30-0-5, 20-0-3"},
+    {n:"CAR'S", o:"20-0-4 (детские электромобили)"}
+  ],
+  "Мебель и интерьер": [
+    {n:"D'ORO", o:"30-0-5"},
+    {n:"RAYSON (мебель)", o:"0-0-3, 30-0-5"},
+    {n:"БЕЛАРУСЬ", o:"20-0-3, 30-0-5"},
+    {n:"NOVA", o:"30-0-5, 20-0-3"},
+    {n:"МАКСИМАЛ", o:"0-0-3, 30-0-5"},
+    {n:"IZOLDA KITCHEN", o:"30-0-5"},
+    {n:"SCANDDYY", o:"30-0-5, 20-0-3"},
+    {n:"SALON INTERIORS", o:"30-0-5, 20-0-3"},
+    {n:"ЭЛИТ ПОЛ", o:"наценка"},
+    {n:"AKерамика", o:"наценка"},
+    {n:"ПОЛ КАВКАЗА", o:"наценка"}
+  ],
+  "Спорт и активный отдых": [
+    {n:"DAG SPORT", o:"наценка"},
+    {n:"АТЛЕТИКА", o:"30-0-5, 20-0-3 (фитнес-клуб)"},
+    {n:"VELOPROF", o:"30-0-5, 20-0-3"},
+    {n:"OX & DJOX", o:"30-0-5, 25-0-3"},
+    {n:"ЧЕМПИОН", o:"25-0-3"},
+    {n:"ВЕЛОМАГ", o:"30-0-5, 20-0-3"}
+  ],
+  "Для дома / инженерные системы": [
+    {n:"ВСЕ ДЛЯ ДОМА", o:"30-0-5, 20-0-3"},
+    {n:"АРГОС", o:"наценка (двери)"},
+    {n:"PROFI SERVICE", o:"30-0-5, 25-0-3 (стабилизаторы напряжения)"},
+    {n:"KARCHER", o:"30-0-5, 10-0-3"},
+    {n:"CALIPSO", o:"30-0-5, 20-0-3"},
+    {n:"EUROTEK", o:"30-0-5, 20-0-3"},
+    {n:"МИР ОКОН", o:"30-0-5, 20-0-3"},
+    {n:"ТЕРМОЦЕНТР", o:"30-0-5, 20-0-3"},
+    {n:"РАШМАН", o:"наценка"},
+    {n:"Беркутъ", o:"30-0-5 (система безопасности)"}
+  ],
+  "Авто": [
+    {n:"Kurbann Center", o:"наценка (шинный центр)"},
+    {n:"DagitalGaz", o:"наценка"},
+    {n:"AUTODOC", o:"30-0-5, 20-0-3"},
+    {n:"IRON HORSE", o:"наценка (детейлинг)"},
+    {n:"GASPROFI", o:"наценка (газовое оборудование)"},
+    {n:"FIT SERVICE", o:"30-0-5, 20-0-3"},
+    {n:"ОРБИТА", o:"30-0-5, 20-0-3"},
+    {n:"МетанПропан05", o:"30-0-5, 20-0-3"},
+    {n:"A5 Performance", o:"30-0-5, 20-0-3 (детейлинг)"},
+    {n:"ПИОНЕР-М", o:"наценка (шинный центр)"}
+  ],
+  "Часы и аксессуары": [
+    {n:"TIMESBERY", o:"30-0-5, 25-0-3"},
+    {n:"SAAT", o:"30-0-5, 20-0-3"},
+    {n:"REWATCH", o:"30-0-5, 25-0-3"},
+    {n:"ALFAJR", o:"наценка"},
+    {n:"FRANCESCO MARCONI", o:"25-0-3 (сумки)"}
+  ],
+  "Электроника": [
+    {n:"M-АЛИ", o:"наценка"}
+  ],
+  "Здоровье и красота": [
+    {n:"FLEBOSS", o:"0-0-3, 30-0-5"},
+    {n:"АВИЦЕННА", o:"наценка"},
+    {n:"ALISA DENT", o:"наценка"},
+    {n:"DJAMSY", o:"наценка"},
+    {n:"BABY STOM", o:"наценка"},
+    {n:"GENTLE DENTAL", o:"30-0-5, 20-0-3"},
+    {n:"ОРТОДОНТ ДЕНТАЛ", o:"наценка"},
+    {n:"УМУД", o:"30-0-5, 20-0-3"},
+    {n:"ФИЛИКОР", o:"30-0-5, 20-0-3"},
+    {n:"БЕГО", o:"0-0-3, 30-0-5"},
+    {n:"ЗДОРОВЬЕ", o:"наценка"},
+    {n:"ЦЕЛИТЕЛЬ", o:"наценка"},
+    {n:"BEAUTY CLINIC", o:"30-0-5, 20-0-3"},
+    {n:"МАЭСТРО", o:"30-0-5, 20-0-3"},
+    {n:"ДОКТОР ЛУГУЕВ", o:"наценка"},
+    {n:"ТАРНАИР", o:"20-0-3"},
+    {n:"МЕЧТА", o:"наценка"},
+    {n:"Dr. Булгакова", o:"30-0-5, 20-0-3"},
+    {n:"ОЧЕВИДНО", o:"наценка (офтальмология)"},
+    {n:"HAIDAKOV DENT", o:"наценка"},
+    {n:"МЕТАДЕНТ", o:"20-0-4"},
+    {n:"MEDICAL HOUSE", o:"наценка"},
+    {n:"Сафия", o:"наценка"},
+    {n:"LONDA LAZER", o:"наценка (оборудование для салонов красоты)"}
+  ],
+  "Образование": [
+    {n:"АНО ПО ОМК", o:"30-0-5, 20-0-3"},
+    {n:"Профессия Авитолога", o:"наценка"},
+    {n:"Академия компьютерных технологий", o:"наценка"},
+    {n:"ДЕНЕЖНЫЙ БЛОГ", o:"наценка"},
+    {n:"АВОКАДО", o:"20-0-3, 30-0-5 (курсы массажа)"},
+    {n:"САИД МАРКЕТИНГ", o:"30-0-5, 20-0-3"},
+    {n:"ГРАФИЧЕСКИЙ ДИЗАЙН", o:"30-0-5, 20-0-3"},
+    {n:"FIX APPLE", o:"30-0-5, 20-0-3"},
+    {n:"Курсы Дианы Амировой", o:"0-0-3, 30-0-5"},
+    {n:"VIP Кулинария", o:"30-0-5, 20-0-3"},
+    {n:"DIPOL", o:"20-0-3, 30-0-5"},
+    {n:"Инвестиции в ислам", o:"30-0-5, 20-0-3"},
+    {n:"Мамин курс", o:"наценка"},
+    {n:"Курс Дианы Алиевой", o:"20-0-3"},
+    {n:"Бухгалтерские курсы", o:"30-0-5, 20-0-3"},
+    {n:"Единый центр ремонта", o:"30-0-5, 20-0-3"},
+    {n:"Наставничество", o:"30-0-5, 20-0-3"},
+    {n:"Больше, чем СММ", o:"30-0-5, 20-0-3"}
+  ],
+  "Путешествия / хадж-умра": [
+    {n:"PREMIUM TRAVEL", o:"наценка"},
+    {n:"NUSUK TOUR", o:"наценка (хадж, умра оператор)"},
+    {n:"ДЖАМИ", o:"наценка"},
+    {n:"SAUDIHUB", o:"наценка (хадж, умра оператор)"},
+    {n:"ВОКРУГ СВЕТА", o:"наценка"},
+    {n:"ЛЕТАЙ С НАМИ", o:"наценка"},
+    {n:"Gold Travel", o:"наценка"},
+    {n:"TIME TRAVEL", o:"наценка"},
+    {n:"Первый Визовый центр", o:"наценка"},
+    {n:"ИХЛЯС", o:"наценка (умра, хадж)"},
+    {n:"PEGAS", o:"наценка"},
+    {n:"ЛЕТИ ТРЕВЕЛ", o:"наценка"},
+    {n:"S_Travel", o:"наценка"},
+    {n:"ALFIN", o:"30-0-5, 20-0-3 (открытие зарубежных счетов)"}
+  ]
+};
+
+// monthCats: строит все 12 категорий для месяца.
+// overrides задает focus только для категорий, которые в этом месяце в приоритете:
+//   focus: null      -> вся категория на усиленном фокусе
+//   focus: [...имена] -> только эти партнеры на усиленном фокусе, остальные - базовая поддержка
+// категории без override автоматически идут с focus: [] (вся категория на базовой поддержке -
+// партнеры показаны, но без спецбюджета в этом месяце)
+function monthCats(overrides){
+  return allCats.map(cat => ({
+    cat,
+    all: catFull[cat],
+    focus: overrides.hasOwnProperty(cat) ? overrides[cat] : []
+  }));
+}
+
+const months = [
+  {
+    name: "Январь",
+    tag: "Смешанный пик",
+    primary: "Образование",
+    note: "Постновогодний период: спрос на технику остывает, начинается сезон обучения (новые цели на год) и фитнес-резолюций. Остальные 10 категорий — на базовой поддержке.",
+    cats: monthCats({
+      "Образование": null,
+      "Спорт и активный отдых": ["АТЛЕТИКА","DAG SPORT","ЧЕМПИОН"]
+    }),
+    action: "Запустить рассрочку на курсы по всей базе образовательных партнеров (тема «новые навыки на год»). Усилить фитнес-клубы и спортивные магазины под январские резолюции."
+  },
+  {
+    name: "Февраль",
+    tag: "Смешанный пик",
+    primary: "Мужская одежда и обувь",
+    note: "19 февраля 2026 — начало Рамадана, обновление мужского гардероба. 23 февраля — подарки: мужская одежда, часы, электроника.",
+    cats: monthCats({
+      "Мужская одежда и обувь": null,
+      "Часы и аксессуары": null,
+      "Электроника": null
+    }),
+    action: "Усиленно активировать всю сеть мужской одежды, часов и M-АЛИ к 23 февраля и началу Рамадана — спецофферы, тейблтенты в точках."
+  },
+  {
+    name: "Март",
+    tag: "Пик: одежда и красота",
+    primary: "Здоровье и красота",
+    note: "20 марта 2026 — Ураза-байрам: пик обновления гардероба (женского, детского) и обращений в клиники/стоматологии/салоны. 8 марта усиливает женский сегмент и подарочные категории.",
+    cats: monthCats({
+      "Женская одежда и аксессуары": null,
+      "Детская одежда и товары": null,
+      "Здоровье и красота": null,
+      "Часы и аксессуары": null
+    }),
+    action: "Ключевой месяц квартала: усиленная активация женской и детской одежды, полный охват сети клиник/стоматологий/салонов красоты, часы и аксессуары как подарочная категория к 8 марта и празднику."
+  },
+  {
+    name: "Апрель",
+    tag: "Пик: для дома",
+    primary: "Для дома / инженерные системы",
+    note: "Старт ремонтно-строительного сезона. Весенняя подготовка авто к сезону поездок.",
+    cats: monthCats({
+      "Для дома / инженерные системы": null,
+      "Авто": null
+    }),
+    action: "Усиленно активировать всю сеть партнеров «для дома» до начала высокого строительного сезона. Параллельно — весенний техосмотр и детейлинг через автопартнеров."
+  },
+  {
+    name: "Май",
+    tag: "Пик: одежда и хадж",
+    primary: "Мужская одежда и обувь",
+    note: "27 мая 2026 — Курбан-байрам: пик по всей одежде (мужская, женская, детская). Параллельно открывается сезон подготовки к хаджу (выезд в июне).",
+    cats: monthCats({
+      "Мужская одежда и обувь": null,
+      "Женская одежда и аксессуары": null,
+      "Детская одежда и товары": null,
+      "Путешествия / хадж-умра": ["NUSUK TOUR","SAUDIHUB","ИХЛЯС","Первый Визовый центр"]
+    }),
+    action: "Второй пик праздничной одежды в квартале по всем трем сегментам. Усиленная предзаявочная кампания по хадж-пакетам с операторами хаджа/умры и визовым центром."
+  },
+  {
+    name: "Июнь",
+    tag: "Пик: путешествия",
+    primary: "Путешествия / хадж-умра",
+    note: "Хадж проходит вскоре после Курбан-байрама, летние каникулы усиливают турпоток. Стройсезон продолжается, стартует велосезон.",
+    cats: monthCats({
+      "Путешествия / хадж-умра": null,
+      "Для дома / инженерные системы": null,
+      "Спорт и активный отдых": ["VELOPROF","ВЕЛОМАГ","OX & DJOX"]
+    }),
+    action: "Усиленный фокус на всю туристическую сеть — крупный чек, длинный цикл принятия решения. Продолжаем стройсезон, добавляем велосипеды и активный отдых к лету."
+  },
+  {
+    name: "Июль",
+    tag: "Пик: для дома",
+    primary: "Для дома / инженерные системы",
+    note: "Пик строительного сезона, летний период ухода за собой. Вся сеть красоты и спорта — на усиленном фокусе.",
+    cats: monthCats({
+      "Для дома / инженерные системы": null,
+      "Здоровье и красота": null,
+      "Спорт и активный отдых": null
+    }),
+    action: "Держать высокий темп по всей стройкатегории — сезон короткий. Усиленно поддержать сеть клиник, салонов красоты и спортивных партнеров (летний сезон)."
+  },
+  {
+    name: "Август",
+    tag: "Пик: детская одежда",
+    primary: "Детская одежда и товары",
+    note: "Сбор детей в школу — главный сезонный пик для детской одежды и товаров, плюс всплеск на технику для учебы.",
+    cats: monthCats({
+      "Детская одежда и товары": null,
+      "Электроника": null
+    }),
+    action: "Ключевая партнерская кампания квартала: «собери ребенка в школу» (формулировку про переплаты — только там, где реально действует акция 0-0-3/30-0-5). Усиленная работа со всей детской категорией и M-АЛИ."
+  },
+  {
+    name: "Сентябрь",
+    tag: "Пик: образование",
+    primary: "Образование",
+    note: "Начало учебного года усиливает спрос на курсы. Одновременно стартует подготовка к отопительному сезону и обустройство дома после лета.",
+    cats: monthCats({
+      "Образование": null,
+      "Для дома / инженерные системы": null,
+      "Мебель и интерьер": null
+    }),
+    action: "Кампания «новый учебный год — новый навык» по всей базе образовательных партнеров. Усилить климатическое/отопительное оборудование и мебельные салоны (обустройство после ремонта)."
+  },
+  {
+    name: "Октябрь",
+    tag: "Пик: для дома",
+    primary: "Для дома / инженерные системы",
+    note: "Отопительный сезон в активной фазе. Подготовка авто к зиме (шиномонтаж). Межсезонное обновление взрослого гардероба.",
+    cats: monthCats({
+      "Для дома / инженерные системы": null,
+      "Авто": null,
+      "Мужская одежда и обувь": null,
+      "Женская одежда и аксессуары": null
+    }),
+    action: "Усиленный фокус на отопительном/климатическом оборудовании и шинных центрах. Активировать мужскую и женскую одежду на осенне-зимнюю коллекцию."
+  },
+  {
+    name: "Ноябрь",
+    tag: "Пик: электроника",
+    primary: "Электроника",
+    note: "Предновогодний разгон спроса на технику, подарки (часы, аксессуары) и зимнюю одежду.",
+    cats: monthCats({
+      "Электроника": null,
+      "Часы и аксессуары": null,
+      "Мужская одежда и обувь": null,
+      "Женская одежда и аксессуары": null
+    }),
+    action: "Подготовить электронику и часы к декабрьскому пику: заранее согласовать акции. Усиленно активировать мужскую и женскую одежду на зимнюю коллекцию и подарки."
+  },
+  {
+    name: "Декабрь",
+    tag: "Главный пик года",
+    primary: "Электроника",
+    note: "Новый год — максимальный сезонный пик почти по всем категориям одновременно: техника, вся одежда, красота, часы, путешествия.",
+    cats: monthCats({
+      "Электроника": null,
+      "Мужская одежда и обувь": null,
+      "Женская одежда и аксессуары": null,
+      "Детская одежда и товары": null,
+      "Здоровье и красота": null,
+      "Путешествия / хадж-умра": null,
+      "Часы и аксессуары": null
+    }),
+    action: "Главный месяц года по нагрузке: максимальная партнерская активация по семи категориям одновременно, без исключений. Бюджет и обучение продавцов готовить с ноября."
+  }
+];
+
+const svg = document.getElementById('wheel');
+const cx = 190, cy = 190, rOuter = 168, rInner = 96;
+const n = months.length;
+let active = 0;
+
+function polar(cx, cy, r, angle){
+  const a = (angle - 90) * Math.PI / 180;
+  return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+}
+
+function arcPath(cx, cy, rO, rI, a0, a1){
+  const p0o = polar(cx, cy, rO, a0), p1o = polar(cx, cy, rO, a1);
+  const p0i = polar(cx, cy, rI, a1), p1i = polar(cx, cy, rI, a0);
+  const large = (a1 - a0) > 180 ? 1 : 0;
+  return `M ${p0o.x} ${p0o.y} A ${rO} ${rO} 0 ${large} 1 ${p1o.x} ${p1o.y} L ${p0i.x} ${p0i.y} A ${rI} ${rI} 0 ${large} 0 ${p1i.x} ${p1i.y} Z`;
+}
+
+function dominantColor(m){
+  return categoryColors[m.primary] || '#888888';
+}
+
+function buildWheel(){
+  let html = '';
+  const step = 360 / n;
+  months.forEach((m, i) => {
+    const a0 = i * step, a1 = (i+1) * step;
+    const color = dominantColor(m);
+    html += `<path class="seg${i===active?' active':''}" data-i="${i}" d="${arcPath(cx,cy,rOuter,rInner,a0,a1)}" fill="${color}" fill-opacity="${i===active?0.95:0.55}" stroke="#fff" stroke-width="1.5"/>`;
+    const mid = (a0+a1)/2;
+    const lp = polar(cx, cy, (rOuter+rInner)/2 + 2, mid);
+    html += `<text class="month-label" x="${lp.x}" y="${lp.y}" text-anchor="middle" dominant-baseline="central" fill="#fff">${m.name.slice(0,3)}</text>`;
+  });
+  html += `<circle cx="${cx}" cy="${cy}" r="${rInner-4}" fill="#fff" stroke="#E4E1D8"/>`;
+  html += `<text class="center-label" x="${cx}" y="${cy-6}" text-anchor="middle">${months[active].name}</text>`;
+  html += `<text class="center-sub" x="${cx}" y="${cy+12}" text-anchor="middle">${months[active].tag}</text>`;
+  svg.innerHTML = html;
+  svg.querySelectorAll('.seg').forEach(el => {
+    el.addEventListener('click', () => { active = parseInt(el.dataset.i); render(); });
+  });
+}
+
+function buildLegend(){
+  const legend = document.getElementById('legend');
+  legend.innerHTML = Object.entries(categoryColors).map(([k,v]) =>
+    `<div class="legend-item"><span class="dot" style="background:${v}"></span>${k}</div>`
+  ).join('');
+}
+
+function buildDetail(){
+  const m = months[active];
+  const detail = document.getElementById('detail');
+  let html = `
+    <div class="detail-head">
+      <div class="detail-month">${m.name}</div>
+      <div class="detail-tag">${m.tag}</div>
+    </div>
+    <div class="season-note">${m.note}</div>
+  `;
+  m.cats.forEach(c => {
+    const color = categoryColors[c.cat] || '#999';
+    const focusSet = c.focus;
+    const focused = focusSet ? c.all.filter(p => focusSet.includes(p.n)) : c.all;
+    const baseline = focusSet ? c.all.filter(p => !focusSet.includes(p.n)) : [];
+    html += `<div class="cat-block">
+      <div class="cat-title"><span class="dot" style="background:${color}"></span>${c.cat} <span class="cat-count">(${c.all.length})</span></div>`;
+    if(focused.length){
+      html += `<div class="group-label">Усиленный фокус в этом месяце (${focused.length})</div>
+        <div class="partner-grid">`;
+      focused.forEach(p => {
+        html += `<div class="partner-card focus"><div class="partner-name">${p.n}</div><div class="partner-offer">${p.o}</div></div>`;
+      });
+      html += `</div>`;
+    }
+    if(baseline.length){
+      html += `<details class="baseline-details">
+        <summary class="group-label baseline-label">Базовая поддержка, без спецбюджета в этом месяце (${baseline.length}) — раскрыть список</summary>
+        <div class="partner-grid" style="margin-top:10px;">`;
+      baseline.forEach(p => {
+        html += `<div class="partner-card baseline"><div class="partner-name">${p.n}</div><div class="partner-offer">${p.o}</div></div>`;
+      });
+      html += `</div></details>`;
+    }
+    html += `</div>`;
+  });
+  html += `<div class="action-box"><b>Что делать в этом месяце:</b> ${m.action}</div>`;
+  html += `<div class="status-line">Все 138 партнеров и их акции — из актуальной выгрузки, показаны в каждом месяце (усиленный фокус или базовая поддержка). Привязка категорий к конкретным месяцам — гипотеза на основе общей рыночной логики, требует сверки с CRM/AppMetrica по факту заявок и сделок за 2024–2026.</div>`;
+  detail.innerHTML = html;
+}
+
+function render(){
+  buildWheel();
+  buildDetail();
+}
+
+buildLegend();
+render();
+</script>
+</body>
+</html>
